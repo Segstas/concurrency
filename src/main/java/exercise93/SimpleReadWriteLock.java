@@ -29,9 +29,11 @@ public class SimpleReadWriteLock implements ReadWriteLock {
     }
 
     private class WriteLock implements Lock {
+
+        @Override
         public void lock() {
             synchronized (lock) {
-                while (writer) {
+                while (writer || readers > 0) {
                     try {
                         lock.wait();
                     } catch (InterruptedException e) {
@@ -39,16 +41,10 @@ public class SimpleReadWriteLock implements ReadWriteLock {
                     }
                 }
                 writer = true;
-                while (readers > 0) {
-                    try {
-                        lock.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
         }
 
+        @Override
         public void unlock() {
             synchronized (lock) {
                 writer = false;
@@ -78,15 +74,6 @@ public class SimpleReadWriteLock implements ReadWriteLock {
 
     private class ReadLock implements Lock {
 
-
-        public void unlock() {
-            synchronized (lock) {
-                readers--;
-                if (readers == 0)
-                    lock.notifyAll();
-            }
-        }
-
         @Override
         public void lock() {
             {
@@ -100,6 +87,15 @@ public class SimpleReadWriteLock implements ReadWriteLock {
                     }
                     readers++;
                 }
+            }
+        }
+
+        @Override
+        public void unlock() {
+            synchronized (lock) {
+                readers--;
+                if (readers == 0)
+                    lock.notifyAll();
             }
         }
 
