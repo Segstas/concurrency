@@ -1,12 +1,17 @@
-package tockenring.sber;
+package tockenring.sber.dummyvolatile;
 
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
+import tockenring.sber.ContentPackage;
+import tockenring.sber.TokenNode;
+import tockenring.sber.metrics.ThroughputChecker;
 
-@State(Scope.Benchmark)
-public class TokenNodeDummyVolatile implements TokenNode {
+public class TokenNodeDummyVolatile extends ThroughputChecker implements TokenNode {
     int index;
 
+    public void setCycleController(boolean cycleController) {
+        this.cycleController = cycleController;
+    }
+
+    private volatile boolean cycleController = true;
     TokenNode next;
 
     private volatile ContentPackage contentPackage;
@@ -22,9 +27,11 @@ public class TokenNodeDummyVolatile implements TokenNode {
 
     @Override
     public void run() {
-        while (true) {
+        while (cycleController) {
             if (this.contentPackage != null) {
+                this.contentPackage.putTimeStamp();
                 sendContentPackage(this.contentPackage);
+                countIncrement();
                 this.contentPackage = null;
             }
         }
@@ -32,17 +39,17 @@ public class TokenNodeDummyVolatile implements TokenNode {
 
     @Override
     public void sendContentPackage(ContentPackage outboxContentPackage) {
-        System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
+      ///  System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
         this.next.receiveContentPackage(outboxContentPackage);
     }
 
     @Override
     public void receiveContentPackage(ContentPackage inboxContentPackage) {
-        System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
+     ///   System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
         while (this.contentPackage != null) {
         }
         this.contentPackage = inboxContentPackage;
-        System.out.println("Content package " + inboxContentPackage.toString() + " has been set in #" + this.index);
+    ///    System.out.println("Content package " + inboxContentPackage.toString() + " has been set in #" + this.index);
     }
 
     public ContentPackage getContentPackage() {

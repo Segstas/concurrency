@@ -1,15 +1,21 @@
-package tockenring.sber;
+package tockenring.sber.sync;
 
-import java.util.concurrent.locks.ReentrantLock;
+import tockenring.sber.ContentPackage;
+import tockenring.sber.TokenNode;
+import tockenring.sber.metrics.ThroughputChecker;
 
-public class TokenNodeBufferSync implements TokenNode {
+public class TokenNodeBufferSync extends ThroughputChecker implements TokenNode {
     int index;
 
     TokenNode next;
 
-    private final ReentrantLock lock = new ReentrantLock();
+    public void setCycleController(boolean cycleController) {
+        this.cycleController = cycleController;
+    }
 
-    private  ContentPackage contentPackage;
+    private volatile boolean cycleController = true;
+
+    private ContentPackage contentPackage;
     private  ContentPackage beforeContentPackage;
 
     public TokenNodeBufferSync(int index) {
@@ -23,29 +29,35 @@ public class TokenNodeBufferSync implements TokenNode {
 
     @Override
     public void run() {
-        while (true) {
+        while (cycleController) {
             synchronized (this) {
             if (this.beforeContentPackage != null && this.contentPackage == null) {
                 this.contentPackage = this.beforeContentPackage;
                 this.beforeContentPackage = null;
+                countIncrement();
                 this.notifyAll();
             }}
                 if (this.contentPackage != null) {
+                    this.contentPackage.putTimeStamp();
                     sendContentPackage(this.contentPackage);
                     this.contentPackage = null;
                 }
+        }
+        if (this.beforeContentPackage != null) {
+            this.contentPackage = this.beforeContentPackage;
+            this.beforeContentPackage = null;
         }
     }
 
     @Override
     public void sendContentPackage(ContentPackage outboxContentPackage) {
-        System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
+    ///    System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
         this.next.receiveContentPackage(outboxContentPackage);
     }
 
     @Override
     public void receiveContentPackage(ContentPackage inboxContentPackage) {
-        System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
+     ///   System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
         synchronized (this){
         while (this.beforeContentPackage != null) {
             try {
@@ -55,7 +67,7 @@ public class TokenNodeBufferSync implements TokenNode {
             }
         }}
         this.beforeContentPackage = inboxContentPackage;
-        System.out.println("Content package " + inboxContentPackage.toString() + " has been set in #" + this.index);
+    ///    System.out.println("Content package " + inboxContentPackage.toString() + " has been set in #" + this.index);
     }
 
     public ContentPackage getContentPackage() {

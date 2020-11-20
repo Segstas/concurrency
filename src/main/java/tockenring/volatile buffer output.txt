@@ -1,0 +1,297 @@
+"C:\Program Files\Java\jdk1.8.0_201\bin\java.exe" "-javaagent:C:\Program Files (x86)\JetBrains\IntelliJ IDEA 2020.2.1\lib\idea_rt.jar=51323:C:\Program Files (x86)\JetBrains\IntelliJ IDEA 2020.2.1\bin" -Dfile.encoding=UTF-8 -classpath "C:\Program Files\Java\jdk1.8.0_201\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\deploy.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\access-bridge-64.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\cldrdata.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\dnsns.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\jaccess.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\jfxrt.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\localedata.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\nashorn.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\sunec.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\sunjce_provider.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\sunmscapi.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\sunpkcs11.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext\zipfs.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\javaws.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\jfxswt.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\management-agent.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\plugin.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\rt.jar;C:\Users\18851548\learnMIPT\concurrency\target\classes" tockenring.sber.buffervolatile.TestRunnerBufferVolatile
+Test volatile with buffer START
+START TEST node count = 2, content count = 1
+Throughput = 763
+Max latency =2215107100 nanos
+Average latency =654.138850440223 nanos
+STOP TEST node count = 2,content count = 1
+
+
+START TEST node count = 2, content count = 2
+Throughput = 1660
+Max latency =2362816100 nanos
+Average latency =602.269420072003 nanos
+STOP TEST node count = 2,content count = 2
+
+
+START TEST node count = 3, content count = 1
+Throughput = 931
+STOP TEST node count = 3,content count = 1
+
+
+START TEST node count = 3, content count = 2
+Throughput = 453
+Max latency =938139600 nanos
+Average latency =712.5073479417493 nanos
+STOP TEST node count = 3,content count = 2
+
+
+START TEST node count = 3, content count = 3
+Throughput = 717
+Max latency =5286134100 nanos
+Average latency =1393.742497185323 nanos
+Max latency =5286137100 nanos
+Average latency =1393.7189175467545 nanos
+STOP TEST node count = 3,content count = 3
+
+
+START TEST node count = 4, content count = 1
+Throughput = 816
+STOP TEST node count = 4,content count = 1
+
+
+START TEST node count = 4, content count = 2
+Throughput = 682
+Max latency =2738815900 nanos
+Average latency =732.6050172689274 nanos
+STOP TEST node count = 4,content count = 2
+
+
+START TEST node count = 4, content count = 3
+Throughput = 392
+Max latency =379560000 nanos
+Average latency =583.468098937173 nanos
+STOP TEST node count = 4,content count = 3
+
+
+START TEST node count = 4, content count = 4
+Throughput = 532
+Max latency =3679385100 nanos
+Average latency =1878.8680053507283 nanos
+Max latency =3679299800 nanos
+Average latency =1871.70292497598 nanos
+STOP TEST node count = 4,content count = 4
+
+
+START TEST node count = 5, content count = 1
+Throughput = 168
+STOP TEST node count = 5,content count = 1
+
+
+START TEST node count = 5, content count = 2
+Throughput = 220
+Max latency =243503900 nanos
+Average latency =1811.3269545607595 nanos
+STOP TEST node count = 5,content count = 2
+
+
+START TEST node count = 5, content count = 3
+Throughput = 421
+Max latency =287005600 nanos
+Average latency =1416.0325366785135 nanos
+STOP TEST node count = 5,content count = 3
+
+
+START TEST node count = 5, content count = 4
+Throughput = 156
+Max latency =66997100 nanos
+Average latency =2094.343061489774 nanos
+STOP TEST node count = 5,content count = 4
+
+
+START TEST node count = 5, content count = 5
+Throughput = 242
+Max latency =186158200 nanos
+Average latency =4043.9169288384583 nanos
+Max latency =217103700 nanos
+Average latency =4069.9675603810483 nanos
+STOP TEST node count = 5,content count = 5
+
+
+START TEST node count = 6, content count = 1
+Throughput = 47
+STOP TEST node count = 6,content count = 1
+
+
+START TEST node count = 6, content count = 2
+Throughput = 56
+Max latency =54235500 nanos
+Average latency =5871.277587851429 nanos
+STOP TEST node count = 6,content count = 2
+
+
+START TEST node count = 6, content count = 3
+Throughput = 126
+Max latency =102679900 nanos
+Average latency =3938.0682162132416 nanos
+Max latency =102596200 nanos
+Average latency =3894.9784038503567 nanos
+STOP TEST node count = 6,content count = 3
+
+
+START TEST node count = 6, content count = 4
+Throughput = 97
+Max latency =50989600 nanos
+Average latency =6850.513748605501 nanos
+Max latency =62004200 nanos
+Average latency =6847.295284750654 nanos
+STOP TEST node count = 6,content count = 4
+
+
+START TEST node count = 6, content count = 5
+Throughput = 200
+Max latency =68053200 nanos
+Average latency =4061.5462454976437 nanos
+Max latency =87413500 nanos
+Average latency =4154.743414886826 nanos
+STOP TEST node count = 6,content count = 5
+
+
+START TEST node count = 6, content count = 6
+Throughput = 124
+Max latency =85584700 nanos
+Average latency =7847.871030511827 nanos
+Max latency =88397200 nanos
+Average latency =7963.162889511636 nanos
+Max latency =153219700 nanos
+Average latency =7987.319848414283 nanos
+STOP TEST node count = 6,content count = 6
+
+
+START TEST node count = 7, content count = 1
+Throughput = 17
+Max latency =65878300 nanos
+Average latency =8028.651229884534 nanos
+STOP TEST node count = 7,content count = 1
+
+
+START TEST node count = 7, content count = 2
+Throughput = 2
+Max latency =106937800 nanos
+Average latency =110608.7400326104 nanos
+STOP TEST node count = 7,content count = 2
+
+
+START TEST node count = 7, content count = 3
+Throughput = 2
+Max latency =167264700 nanos
+Average latency =176321.18011096885 nanos
+STOP TEST node count = 7,content count = 3
+
+
+START TEST node count = 7, content count = 4
+Throughput = 25
+Max latency =77069300 nanos
+Average latency =22304.411492707663 nanos
+Max latency =77084000 nanos
+Average latency =22344.945528363594 nanos
+Max latency =102518900 nanos
+Average latency =22273.34340814255 nanos
+STOP TEST node count = 7,content count = 4
+
+
+START TEST node count = 7, content count = 5
+Throughput = 24
+Max latency =100316800 nanos
+Average latency =27437.206658177187 nanos
+Max latency =78828800 nanos
+Average latency =27142.094551573584 nanos
+Max latency =152873300 nanos
+Average latency =28578.25726093902 nanos
+STOP TEST node count = 7,content count = 5
+
+
+START TEST node count = 7, content count = 6
+Throughput = 2
+Max latency =126879600 nanos
+Average latency =295216.6043876567 nanos
+Max latency =132030000 nanos
+Average latency =297107.1411353501 nanos
+Max latency =154234300 nanos
+Average latency =298041.74903567985 nanos
+STOP TEST node count = 7,content count = 6
+
+
+START TEST node count = 7, content count = 7
+Throughput = 4
+Max latency =132892900 nanos
+Average latency =221126.85742520887 nanos
+Max latency =129864100 nanos
+Average latency =219872.81466175546 nanos
+Max latency =129541100 nanos
+Average latency =223735.2108880205 nanos
+Max latency =146078800 nanos
+Average latency =220794.92005030543 nanos
+STOP TEST node count = 7,content count = 7
+
+
+START TEST node count = 8, content count = 1
+Throughput = 0
+Max latency =139376400 nanos
+Average latency =9092121.597096188 nanos
+STOP TEST node count = 8,content count = 1
+
+
+START TEST node count = 8, content count = 2
+Throughput = 0
+STOP TEST node count = 8,content count = 2
+
+
+START TEST node count = 8, content count = 3
+Throughput = 0
+Max latency =254806900 nanos
+Average latency =8825196.637168141 nanos
+Max latency =208284800 nanos
+Average latency =8869519.395017793 nanos
+STOP TEST node count = 8,content count = 3
+
+
+START TEST node count = 8, content count = 4
+Throughput = 0
+Max latency =68197600 nanos
+Average latency =9533976.245210728 nanos
+Max latency =100971300 nanos
+Average latency =9555391.778202677 nanos
+Max latency =67875400 nanos
+Average latency =9535727.96934866 nanos
+STOP TEST node count = 8,content count = 4
+
+
+START TEST node count = 8, content count = 5
+Throughput = 5
+Max latency =181060800 nanos
+Average latency =119559.64794795752 nanos
+Max latency =133081400 nanos
+Average latency =119953.97254376733 nanos
+STOP TEST node count = 8,content count = 5
+
+
+START TEST node count = 8, content count = 6
+Throughput = 2
+Max latency =141750200 nanos
+Average latency =304069.0863194188 nanos
+Max latency =124999900 nanos
+Average latency =306452.7858154282 nanos
+Max latency =166583600 nanos
+Average latency =308685.4161536567 nanos
+STOP TEST node count = 8,content count = 6
+
+
+START TEST node count = 8, content count = 7
+Throughput = 0
+Max latency =88124900 nanos
+Average latency =1.1938729496402878E7 nanos
+Max latency =110599500 nanos
+Average latency =1.1938072248803828E7 nanos
+Max latency =105145000 nanos
+Average latency =1.1879412857142856E7 nanos
+Max latency =84027900 nanos
+Average latency =1.1853502850356294E7 nanos
+STOP TEST node count = 8,content count = 7
+
+
+START TEST node count = 8, content count = 8
+Throughput = 2
+Max latency =84015900 nanos
+Average latency =354086.84080130246 nanos
+Max latency =96113900 nanos
+Average latency =351810.86802605493 nanos
+Max latency =100920000 nanos
+Average latency =347537.203539823 nanos
+Max latency =96113600 nanos
+Average latency =349730.5181934022 nanos
+STOP TEST node count = 8,content count = 8
+
+
+Test volatile with buffer STOP
+

@@ -1,12 +1,23 @@
-package tockenring.sber;
+package tockenring.sber.queue;
+
+import tockenring.sber.ContentPackage;
+import tockenring.sber.TokenNode;
+import tockenring.sber.metrics.ThroughputChecker;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class TokenNodeQueue implements TokenNode {
+public class TokenNodeQueue extends ThroughputChecker implements TokenNode {
+
     int index;
 
     TokenNode next;
+
+    public void setCycleController(boolean cycleController) {
+        this.cycleController = cycleController;
+    }
+
+    private volatile boolean cycleController = true;
 
     private final Queue<ContentPackage> contentPackageQueue = new ConcurrentLinkedQueue();
 
@@ -21,8 +32,12 @@ public class TokenNodeQueue implements TokenNode {
 
     @Override
     public void run() {
-        while (true) {
+        while (cycleController) {
             if (!contentPackageQueue.isEmpty()) {
+                countIncrement();
+                if (this.contentPackageQueue.peek() != null) {
+                    this.contentPackageQueue.peek().putTimeStamp();
+                }
                 sendContentPackage(this.contentPackageQueue.poll());
             }
         }
@@ -30,15 +45,15 @@ public class TokenNodeQueue implements TokenNode {
 
     @Override
     public void sendContentPackage(ContentPackage outboxContentPackage) {
-        System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
+  ///      System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
         this.next.receiveContentPackage(outboxContentPackage);
     }
 
     @Override
     public void receiveContentPackage(ContentPackage inboxContentPackage) {
-        System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
+    ///    System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
         this.contentPackageQueue.add(inboxContentPackage);
-        System.out.println("Content package " + inboxContentPackage.toString() + " has been set in #" + this.index);
+     ///   System.out.println("Content package " + inboxContentPackage.toString() + " has been set in #" + this.index);
     }
 
     public ContentPackage getContentPackage() {
