@@ -30,18 +30,24 @@ public class TestRunnerQueue {
         System.out.println(
                 "START TEST node count = " + nodeCount + ", content count = " + contentCount
         );
-        TimeChecker.startTimeChecking();
 
         TokenRingQueue tokenRing = new TokenRingQueue(nodeCount);
         tokenRing.fillContent(contentCount);
         tokenRing.startThreads();
 
+
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+        TimeChecker.startTimeChecking();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         long time = TimeChecker.stopTimeChecking();
 
         tokenRing.stopThreads();

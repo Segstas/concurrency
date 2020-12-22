@@ -34,10 +34,6 @@ public class TokenNodeQueue extends ThroughputChecker implements TokenNode {
     public void run() {
         while (cycleController) {
             if (!contentPackageQueue.isEmpty()) {
-                countIncrement();
-                if (this.contentPackageQueue.peek() != null) {
-                    this.contentPackageQueue.peek().putTimeStamp();
-                }
                 sendContentPackage(this.contentPackageQueue.poll());
             }
         }
@@ -52,6 +48,8 @@ public class TokenNodeQueue extends ThroughputChecker implements TokenNode {
     @Override
     public void receiveContentPackage(ContentPackage inboxContentPackage) {
     ///    System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
+        countIncrement();
+        inboxContentPackage.putTimeStamp();
         this.contentPackageQueue.add(inboxContentPackage);
      ///   System.out.println("Content package " + inboxContentPackage.toString() + " has been set in #" + this.index);
     }
