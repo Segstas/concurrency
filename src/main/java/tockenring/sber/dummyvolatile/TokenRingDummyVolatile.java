@@ -20,6 +20,16 @@ public class TokenRingDummyVolatile implements TokenRing {
         fillThreadNodes(count);
     }
 
+    public void setLatencyToZero() {
+        for (ContentPackage contentPackage : contentPackages) {
+            contentPackage.setTimestampsToZero();
+        }
+    }
+
+    public void setCountToZero(int node){
+        tokenNodes.get(node).setCountToZero();
+    }
+
     public void fillTokenRing(int count) {
         TokenNodeDummyVolatile firstNode = new TokenNodeDummyVolatile(0);
         tokenNodes.add(firstNode);
@@ -52,8 +62,12 @@ public class TokenRingDummyVolatile implements TokenRing {
     }
 
     @Override
-    public long checkThroughput(long time) {
-        return tokenNodes.get(0).checkThroughput(time);
+    public List<Long> checkThroughput(long time) {
+        List <Long> throughputList = new ArrayList<>();
+        for (TokenNodeDummyVolatile tokenNode : tokenNodes) {
+            throughputList.add(tokenNode.checkThroughput(time));
+        }
+        return throughputList;
     }
 
     @Override

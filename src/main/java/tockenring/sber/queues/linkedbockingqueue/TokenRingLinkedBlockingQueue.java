@@ -1,54 +1,64 @@
-package tockenring.sber.buffervolatile;
+package tockenring.sber.queues.linkedbockingqueue;
 
 import tockenring.sber.ContentPackage;
 import tockenring.sber.TokenNode;
 import tockenring.sber.TokenRing;
+import tockenring.sber.queues.arrayblockingqueue.TokenNodeArrayBlockingQueue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TokenRingBufferVolatile implements TokenRing {
+public class TokenRingLinkedBlockingQueue implements TokenRing {
     int count = 0;
-    public List<TokenNodeBufferVolatile> tokenNodes = new ArrayList<>();
+    public List<TokenNodeLinkedBlockingQueue> tokenNodes = new ArrayList<>();
     public List<Thread> threadNodes = new ArrayList<>();
+    public List<ContentPackage> contentPackages = new ArrayList<>();
     public List<List<Long>> allLatency = new ArrayList<>();
 
 
-    public TokenRingBufferVolatile(int count) {
+    public void setLatencyToZero() {
+        for (ContentPackage contentPackage : contentPackages) {
+            contentPackage.setTimestampsToZero();
+        }
+    }
+
+    public void setCountToZero(int node){
+        for (TokenNodeLinkedBlockingQueue tokenNode : tokenNodes) {
+            tokenNode.setCountToZero();
+        }
+    }
+    public TokenRingLinkedBlockingQueue(int count) {
         this.count = count;
         fillTokenRing(count);
         fillThreadNodes(count);
     }
 
-    @Override
     public void fillTokenRing(int count) {
-        TokenNodeBufferVolatile firstNode = new TokenNodeBufferVolatile(0);
+        TokenNodeLinkedBlockingQueue firstNode = new TokenNodeLinkedBlockingQueue(0);
         tokenNodes.add(firstNode);
-        TokenNodeBufferVolatile lastNode = firstNode;
+        TokenNodeLinkedBlockingQueue lastNode = firstNode;
         for (int i = 1; i < count; i++) {
-            TokenNodeBufferVolatile node = new TokenNodeBufferVolatile(i, lastNode);
+            TokenNodeLinkedBlockingQueue node = new TokenNodeLinkedBlockingQueue(i, lastNode);
             tokenNodes.add(node);
             lastNode = node;
         }
         firstNode.setNext(lastNode);
     }
 
-    @Override
     public void fillThreadNodes(int count) {
         for (TokenNode tokenNode : tokenNodes) {
             threadNodes.add(new Thread(tokenNode));
         }
     }
 
-    @Override
     public void fillContent(int contentCount) {
         for (int i = 0; i < contentCount; i++) {
             ContentPackage contentPackage = new ContentPackage(Integer.toString(i));
-            tokenNodes.get(i).setContentPackage(contentPackage);
+            contentPackages.add(contentPackage);
+            tokenNodes.get(0).setContentPackage(contentPackage);
         }
     }
 
-    @Override
     public void startThreads() {
         for (Thread thread : threadNodes) {
             thread.start();
@@ -58,7 +68,7 @@ public class TokenRingBufferVolatile implements TokenRing {
     @Override
     public List<Long> checkThroughput(long time) {
         List <Long> throughputList = new ArrayList<>();
-        for (TokenNodeBufferVolatile tokenNode : tokenNodes) {
+        for (TokenNodeLinkedBlockingQueue tokenNode : tokenNodes) {
             throughputList.add(tokenNode.checkThroughput(time));
         }
         return throughputList;
@@ -78,7 +88,7 @@ public class TokenRingBufferVolatile implements TokenRing {
     }
 
     public void stopThreads() {
-        for (TokenNodeBufferVolatile tokenNode : tokenNodes) {
+        for (TokenNodeLinkedBlockingQueue tokenNode : tokenNodes) {
             tokenNode.setCycleController(false);
         }
         for (Thread thread : threadNodes) {

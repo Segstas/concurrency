@@ -1,13 +1,13 @@
-package tockenring.sber.queue;
+package tockenring.sber.queues.linkedbockingqueue;
 
 import tockenring.sber.ContentPackage;
 import tockenring.sber.TokenNode;
 import tockenring.sber.metrics.ThroughputChecker;
 
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class TokenNodeQueue extends ThroughputChecker implements TokenNode {
+public class TokenNodeLinkedBlockingQueue extends ThroughputChecker implements TokenNode {
 
     int index;
 
@@ -19,13 +19,14 @@ public class TokenNodeQueue extends ThroughputChecker implements TokenNode {
 
     private volatile boolean cycleController = true;
 
-    private final Queue<ContentPackage> contentPackageQueue = new ConcurrentLinkedQueue();
+    private final Queue<ContentPackage> contentPackageQueue = new LinkedBlockingQueue<ContentPackage>() {
+    };
 
-    public TokenNodeQueue(int index) {
+    public TokenNodeLinkedBlockingQueue(int index) {
         this.index = index;
     }
 
-    public TokenNodeQueue(int index, TokenNode next) {
+    public TokenNodeLinkedBlockingQueue(int index, TokenNode next) {
         this.index = index;
         this.next = next;
     }
@@ -42,14 +43,14 @@ public class TokenNodeQueue extends ThroughputChecker implements TokenNode {
     @Override
     public void sendContentPackage(ContentPackage outboxContentPackage) {
   ///      System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
+        outboxContentPackage.putTimeStamp();
         this.next.receiveContentPackage(outboxContentPackage);
+        countIncrement();
     }
 
     @Override
     public void receiveContentPackage(ContentPackage inboxContentPackage) {
     ///    System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
-        countIncrement();
-        inboxContentPackage.putTimeStamp();
         this.contentPackageQueue.add(inboxContentPackage);
      ///   System.out.println("Content package " + inboxContentPackage.toString() + " has been set in #" + this.index);
     }

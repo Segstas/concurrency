@@ -37,16 +37,26 @@ public class TestRunnerSync {
         tokenRing.startThreads();
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        tokenRing.setLatencyToZero();
+        TimeChecker.startTimeChecking();
+        tokenRing.setCountToZero(0);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         long time = TimeChecker.stopTimeChecking();
 
         tokenRing.stopThreads();
 
-        long throughput = tokenRing.checkThroughput(time);
+
+
+
+        List<Long> throughput = tokenRing.checkThroughput(time);
         System.out.println("Throughput = " + throughput);
         List<List<Long>> latency = tokenRing.getLatency(nodeCount);
 
@@ -56,7 +66,11 @@ public class TestRunnerSync {
         writeLatencyToFile(firstLatency);*/
 
         for (List<Long> longs : latency) {
-            System.out.println("Max latency =" + longs.stream().max(comparator).get().toString() + " nanos");
+           // System.out.println("Max latency =" + longs.stream().max(comparator).get().toString() + " nanos + ");
+
+            System.out.println("Max latency =" + longs.stream().peek(a -> {if (a == 0)  System.out.println(a);}).max(comparator).get().toString() + " nanos");
+
+
             OptionalDouble average = longs.stream().mapToLong(num -> num).average();
             if (average.isPresent()) {
                 System.out.println("Average latency =" + average.getAsDouble() + " nanos");

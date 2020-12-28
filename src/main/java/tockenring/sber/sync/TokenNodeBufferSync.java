@@ -34,11 +34,9 @@ public class TokenNodeBufferSync extends ThroughputChecker implements TokenNode 
             if (this.beforeContentPackage != null && this.contentPackage == null) {
                 this.contentPackage = this.beforeContentPackage;
                 this.beforeContentPackage = null;
-                countIncrement();
                 this.notifyAll();
             }}
                 if (this.contentPackage != null) {
-                    this.contentPackage.putTimeStamp();
                     sendContentPackage(this.contentPackage);
                     this.contentPackage = null;
                 }
@@ -59,7 +57,10 @@ public class TokenNodeBufferSync extends ThroughputChecker implements TokenNode 
     public void receiveContentPackage(ContentPackage inboxContentPackage) {
      ///   System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
         synchronized (this){
-        while (this.beforeContentPackage != null) {
+            countIncrement();
+            inboxContentPackage.putTimeStamp();
+
+            while (this.beforeContentPackage != null) {
             try {
                 this.wait();
             } catch (InterruptedException e) {

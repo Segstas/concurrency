@@ -10,7 +10,11 @@ public class ThroughputChecker {
         this.count.incrementAndGet();
     }
 
+    public void setCountToZero(){
+        count.set(0);
+    }
+
     public long checkThroughput(long time) {
-        return (count.get() / time);
+        return ((count.get() / time) * 1000); ////   p/sec
     }
 }

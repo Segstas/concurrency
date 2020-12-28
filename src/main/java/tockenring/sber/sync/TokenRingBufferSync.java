@@ -3,7 +3,6 @@ package tockenring.sber.sync;
 import tockenring.sber.ContentPackage;
 import tockenring.sber.TokenNode;
 import tockenring.sber.TokenRing;
-import tockenring.sber.queue.TokenNodeQueue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +13,16 @@ public class TokenRingBufferSync implements TokenRing {
     public List<Thread> threadNodes = new ArrayList<>();
     public List<ContentPackage> contentPackages = new ArrayList<>();
     public List<List<Long>> allLatency = new ArrayList<>();
+
+    public void setLatencyToZero() {
+        for (ContentPackage contentPackage : contentPackages) {
+            contentPackage.setTimestampsToZero();
+        }
+    }
+
+    public void setCountToZero(int node){
+        tokenNodes.get(node).setCountToZero();
+    }
 
     public TokenRingBufferSync(int count) {
         this.count = count;
@@ -53,8 +62,12 @@ public class TokenRingBufferSync implements TokenRing {
     }
 
     @Override
-    public long checkThroughput(long time) {
-        return tokenNodes.get(0).checkThroughput(time);
+    public List<Long> checkThroughput(long time) {
+        List <Long> throughputList = new ArrayList<>();
+        for (TokenNodeBufferSync tokenNode : tokenNodes) {
+            throughputList.add(tokenNode.checkThroughput(time));
+        }
+        return throughputList;
     }
 
     @Override

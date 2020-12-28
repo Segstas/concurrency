@@ -11,7 +11,7 @@ public interface TokenRing {
 
     void startThreads();
 
-    long checkThroughput(long time);
+    List<Long> checkThroughput(long time);
 
     List<List<Long>>  getLatency(int count);
 }

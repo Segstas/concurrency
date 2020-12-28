@@ -1,31 +1,45 @@
-package tockenring.sber.queue;
+package tockenring.sber.queues.concurrentlinkedqueue;
 
 import tockenring.sber.ContentPackage;
 import tockenring.sber.TokenNode;
 import tockenring.sber.TokenRing;
+import tockenring.sber.queues.arrayblockingqueue.TokenNodeArrayBlockingQueue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TokenRingQueue implements TokenRing {
+public class TokenRingConcurrentLinkedQueue implements TokenRing {
     int count = 0;
-    public List<TokenNodeQueue> tokenNodes = new ArrayList<>();
+    public List<TokenNodeConcurrentLinkedQueue> tokenNodes = new ArrayList<>();
     public List<Thread> threadNodes = new ArrayList<>();
     public List<ContentPackage> contentPackages = new ArrayList<>();
     public List<List<Long>> allLatency = new ArrayList<>();
 
-    public TokenRingQueue(int count) {
+
+    public void setLatencyToZero() {
+        for (ContentPackage contentPackage : contentPackages) {
+            contentPackage.setTimestampsToZero();
+        }
+    }
+
+    public void setCountToZero(int node){
+        for (TokenNodeConcurrentLinkedQueue tokenNode : tokenNodes) {
+            tokenNode.setCountToZero();
+        }
+    }
+
+    public TokenRingConcurrentLinkedQueue(int count) {
         this.count = count;
         fillTokenRing(count);
         fillThreadNodes(count);
     }
 
     public void fillTokenRing(int count) {
-        TokenNodeQueue firstNode = new TokenNodeQueue(0);
+        TokenNodeConcurrentLinkedQueue firstNode = new TokenNodeConcurrentLinkedQueue(0);
         tokenNodes.add(firstNode);
-        TokenNodeQueue lastNode = firstNode;
+        TokenNodeConcurrentLinkedQueue lastNode = firstNode;
         for (int i = 1; i < count; i++) {
-            TokenNodeQueue node = new TokenNodeQueue(i, lastNode);
+            TokenNodeConcurrentLinkedQueue node = new TokenNodeConcurrentLinkedQueue(i, lastNode);
             tokenNodes.add(node);
             lastNode = node;
         }
@@ -41,7 +55,8 @@ public class TokenRingQueue implements TokenRing {
     public void fillContent(int contentCount) {
         for (int i = 0; i < contentCount; i++) {
             ContentPackage contentPackage = new ContentPackage(Integer.toString(i));
-            tokenNodes.get(i).setContentPackage(contentPackage);
+            contentPackages.add(contentPackage);
+            tokenNodes.get(0).setContentPackage(contentPackage);
         }
     }
 
@@ -52,8 +67,12 @@ public class TokenRingQueue implements TokenRing {
     }
 
     @Override
-    public long checkThroughput(long time) {
-        return tokenNodes.get(0).checkThroughput(time);
+    public List<Long> checkThroughput(long time) {
+        List <Long> throughputList = new ArrayList<>();
+        for (TokenNodeConcurrentLinkedQueue tokenNode : tokenNodes) {
+            throughputList.add(tokenNode.checkThroughput(time));
+        }
+        return throughputList;
     }
 
     @Override
@@ -70,7 +89,7 @@ public class TokenRingQueue implements TokenRing {
     }
 
     public void stopThreads() {
-        for (TokenNodeQueue tokenNode : tokenNodes) {
+        for (TokenNodeConcurrentLinkedQueue tokenNode : tokenNodes) {
             tokenNode.setCycleController(false);
         }
         for (Thread thread : threadNodes) {

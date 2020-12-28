@@ -15,7 +15,7 @@ public class TestRunnerDummyVolatile {
                 "Test dummy volatile START"
         );
         for (int i = 5; i <= 8; i++) {
-            for (int j = 1; j <= i-1; j++) {
+            for (int j = 1; j <= i - 1; j++) {
                 runTest(i, j);
             }
         }
@@ -37,16 +37,23 @@ public class TestRunnerDummyVolatile {
         tokenRing.startThreads();
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        tokenRing.setLatencyToZero();
+        TimeChecker.startTimeChecking();
+        tokenRing.setCountToZero(0);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         long time = TimeChecker.stopTimeChecking();
 
         tokenRing.stopThreads();
 
-        long throughput = tokenRing.checkThroughput(time);
+        List<Long> throughput = tokenRing.checkThroughput(time);
         System.out.println("Throughput = " + throughput);
         List<List<Long>> latency = tokenRing.getLatency(nodeCount);
 
@@ -56,7 +63,11 @@ public class TestRunnerDummyVolatile {
         writeLatencyToFile(firstLatency);*/
 
         for (List<Long> longs : latency) {
-            System.out.println("Max latency =" + longs.stream().max(comparator).get().toString() + " nanos");
+            ////System.out.println("Max latency =" + longs.stream().max(comparator).get().toString() + " nanos + ");
+
+             System.out.println("Max latency =" + longs.stream().peek(a -> {if (a == 2)  System.out.println(a);}).max(comparator).get().toString() + " nanos");
+
+
             OptionalDouble average = longs.stream().mapToLong(num -> num).average();
             if (average.isPresent()) {
                 System.out.println("Average latency =" + average.getAsDouble() + " nanos");
@@ -67,6 +78,7 @@ public class TestRunnerDummyVolatile {
                 "STOP TEST node count = " + nodeCount + ",content count = " + contentCount + "\n" + "\n"
         );
     }
+
 
     private static void writeLatencyToFile(List<Long> firstLatency) {
         try (FileWriter writer = new FileWriter("Latency.txt", false)) {
