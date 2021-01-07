@@ -1,20 +1,18 @@
 package tockenring.sber.metrics;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class ThroughputChecker {
 
-    protected AtomicInteger count = new AtomicInteger(0);
+    protected Integer count = 0;
 
     protected void countIncrement() {
-        this.count.incrementAndGet();
+        this.count++;
     }
 
     public void setCountToZero(){
-        count.set(0);
+        count = 0;
     }
 
     public long checkThroughput(long time) {
-        return (long) ((Double.valueOf(count.get()) / time) * 1000); ////   p/sec
+        return (long) ((Double.valueOf(count) / time) * 1000); ////   p/sec
     }
 }
