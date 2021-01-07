@@ -3,24 +3,24 @@ package tockenring.sber.queues.concurrentlinkedqueue;
 import tockenring.sber.ContentPackage;
 import tockenring.sber.TokenNode;
 import tockenring.sber.TokenRing;
-import tockenring.sber.queues.arrayblockingqueue.TokenNodeArrayBlockingQueue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TokenRingConcurrentLinkedQueue implements TokenRing {
     int count = 0;
+
     public List<TokenNodeConcurrentLinkedQueue> tokenNodes = new ArrayList<>();
     public List<Thread> threadNodes = new ArrayList<>();
     public List<ContentPackage> contentPackages = new ArrayList<>();
     public List<List<Long>> allLatency = new ArrayList<>();
 
 
-    public void setLatencyToZero() {
+/*    public void setLatencyToZero() {
         for (ContentPackage contentPackage : contentPackages) {
             contentPackage.setTimestampsToZero();
         }
-    }
+    }*/
 
     public void setCountToZero(int node){
         for (TokenNodeConcurrentLinkedQueue tokenNode : tokenNodes) {
@@ -35,7 +35,7 @@ public class TokenRingConcurrentLinkedQueue implements TokenRing {
     }
 
     public void fillTokenRing(int count) {
-        TokenNodeConcurrentLinkedQueue firstNode = new TokenNodeConcurrentLinkedQueue(0);
+        TokenNodeConcurrentLinkedQueueTimeStampChecker firstNode = new TokenNodeConcurrentLinkedQueueTimeStampChecker(0);
         tokenNodes.add(firstNode);
         TokenNodeConcurrentLinkedQueue lastNode = firstNode;
         for (int i = 1; i < count; i++) {
@@ -53,10 +53,26 @@ public class TokenRingConcurrentLinkedQueue implements TokenRing {
     }
 
     public void fillContent(int contentCount) {
-        for (int i = 0; i < contentCount; i++) {
-            ContentPackage contentPackage = new ContentPackage(Integer.toString(i));
-            contentPackages.add(contentPackage);
-            tokenNodes.get(0).setContentPackage(contentPackage);
+        TokenNodeConcurrentLinkedQueueTimeStampChecker timeStampChecker = (TokenNodeConcurrentLinkedQueueTimeStampChecker) tokenNodes.get(0);
+
+        int size = threadNodes.size();
+        int contentCountPerNode = contentCount/size;
+        int additionalContentCountPerNode = contentCount%tokenNodes.size();
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < contentCountPerNode; j++) {
+                ContentPackage contentPackage = new ContentPackage(Integer.toString(j));
+                contentPackages.add(contentPackage);
+                tokenNodes.get(i).setContentPackage(contentPackage);
+                //      timeStampChecker.timeStampHashMap.put(Integer.toString(j), new ArrayList<>());
+            }
+            if (additionalContentCountPerNode > 0) {
+                ContentPackage contentPackage = new ContentPackage("Add" + additionalContentCountPerNode);
+                contentPackages.add(contentPackage);
+                tokenNodes.get(i).setContentPackage(contentPackage);
+                //      timeStampChecker.timeStampHashMap.put(("Add" + additionalContentCountPerNode), new ArrayList<>());
+                additionalContentCountPerNode--;
+            }
         }
     }
 
@@ -69,23 +85,15 @@ public class TokenRingConcurrentLinkedQueue implements TokenRing {
     @Override
     public List<Long> checkThroughput(long time) {
         List <Long> throughputList = new ArrayList<>();
-        for (TokenNodeConcurrentLinkedQueue tokenNode : tokenNodes) {
-            throughputList.add(tokenNode.checkThroughput(time));
-        }
+        throughputList.add(tokenNodes.get(0).checkThroughput(time));
         return throughputList;
     }
 
     @Override
-    public List<List<Long>> getLatency(int count) {
-        for (int i = 0; i < count; i++) {
-            TokenNode tokenNode = tokenNodes.get(i);
-            if (tokenNode.getContentPackage() != null) {
-                ContentPackage contentPackage = tokenNode.getContentPackage();
-                contentPackage.calculateLatency();
-                allLatency.add(contentPackage.latency);
-            }
-        }
-        return allLatency;
+    public List<Long> getLatency(int count) {
+        TokenNodeConcurrentLinkedQueueTimeStampChecker tokenNode = (TokenNodeConcurrentLinkedQueueTimeStampChecker)tokenNodes.get(0);
+        tokenNode.calculateLatency();
+        return tokenNode.latency;
     }
 
     public void stopThreads() {

@@ -1,3 +1,4 @@
+/*
 package tockenring.sber;
 
 import tockenring.sber.dummyvolatile.TokenRingDummyVolatile;
@@ -46,7 +47,8 @@ public class MainOld {
         }
 
 
-  /*    GraficGenerator graficGenerator = new GraficGenerator();
+  */
+/*    GraficGenerator graficGenerator = new GraficGenerator();
 
         List<Integer> firstLatencyInt = firstLatency.stream()
                 .mapToInt(Long::intValue)
@@ -64,7 +66,8 @@ public class MainOld {
         graficGenerator.setN(arrayX.length);
 
 
-        graficGenerator.draw();*/
+        graficGenerator.draw();*//*
+
     }
 
     private static void writeLatencyToFile(List<Long> firstLatency) {
@@ -88,3 +91,4 @@ public class MainOld {
         return ret;
     }
 }
+*/

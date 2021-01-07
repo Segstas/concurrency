@@ -1,17 +1,44 @@
-package tockenring.sber.queues.linkedbockingqueue;
+package tockenring.sber.queues.concurrentlinkedqueue;
 
 import tockenring.sber.ContentPackage;
 import tockenring.sber.TokenNode;
-import tockenring.sber.metrics.ThroughputChecker;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class TokenNodeLinkedBlockingQueue extends ThroughputChecker implements TokenNode {
+public class TokenNodeConcurrentLinkedQueueTimeStampChecker extends TokenNodeConcurrentLinkedQueue implements TokenNode {
 
     int index;
 
     TokenNode next;
+
+    // public HashMap <String, List<Long>> timeStampHashMap = new HashMap<>();
+
+
+    public List<Long> timestamps = new ArrayList();
+    public List<Long> latency = new ArrayList();
+
+    public void putTimeStamp (String string) {
+        //     timeStampHashMap.get(string).add(System.nanoTime());
+        if (string.equals("0")) {
+            timestamps.add(System.nanoTime());
+        }
+    }
+
+    public void setTimestampsToZero () {
+        timestamps = new ArrayList();
+    }
+
+    public void calculateLatency () {
+
+        for (int i = 1; i < timestamps.size(); i++) {
+            if ((timestamps.get(i) != null) && (timestamps.get(i) != null)) {
+                latency.add(timestamps.get(i) - timestamps.get(i - 1));
+            }
+        }
+    }
 
     public void setCycleController(boolean cycleController) {
         this.cycleController = cycleController;
@@ -19,16 +46,15 @@ public class TokenNodeLinkedBlockingQueue extends ThroughputChecker implements T
 
     private volatile boolean cycleController = true;
 
-    private final Queue<ContentPackage> contentPackageQueue = new LinkedBlockingQueue<ContentPackage>() {
+    private final Queue<ContentPackage> contentPackageQueue = new ConcurrentLinkedQueue<ContentPackage>() {
     };
 
-    public TokenNodeLinkedBlockingQueue(int index) {
-        this.index = index;
+    public TokenNodeConcurrentLinkedQueueTimeStampChecker(int index) {
+        super(index);
     }
 
-    public TokenNodeLinkedBlockingQueue(int index, TokenNode next) {
-        this.index = index;
-        this.next = next;
+    public TokenNodeConcurrentLinkedQueueTimeStampChecker(int index, TokenNode next) {
+        super(index,next);
     }
 
     @Override
@@ -43,8 +69,10 @@ public class TokenNodeLinkedBlockingQueue extends ThroughputChecker implements T
     @Override
     public void sendContentPackage(ContentPackage outboxContentPackage) {
         ///      System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
-        this.next.receiveContentPackage(outboxContentPackage);
 
+        putTimeStamp(outboxContentPackage.content);
+        this.next.receiveContentPackage(outboxContentPackage);
+        countIncrement();
     }
 
     @Override

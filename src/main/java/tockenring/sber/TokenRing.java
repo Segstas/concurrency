@@ -13,5 +13,5 @@ public interface TokenRing {
 
     List<Long> checkThroughput(long time);
 
-    List<List<Long>>  getLatency(int count);
+    List<Long> getLatency(int count);
 }

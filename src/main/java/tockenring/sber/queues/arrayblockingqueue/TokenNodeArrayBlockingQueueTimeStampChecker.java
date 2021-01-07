@@ -2,16 +2,43 @@ package tockenring.sber.queues.arrayblockingqueue;
 
 import tockenring.sber.ContentPackage;
 import tockenring.sber.TokenNode;
-import tockenring.sber.metrics.ThroughputChecker;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class TokenNodeArrayBlockingQueue extends ThroughputChecker implements TokenNode {
+public class TokenNodeArrayBlockingQueueTimeStampChecker extends TokenNodeArrayBlockingQueue implements TokenNode {
 
     int index;
 
     TokenNode next;
+
+   // public HashMap <String, List<Long>> timeStampHashMap = new HashMap<>();
+
+
+    public List<Long> timestamps = new ArrayList();
+    public List<Long> latency = new ArrayList();
+
+    public void putTimeStamp (String string) {
+   //     timeStampHashMap.get(string).add(System.nanoTime());
+        if (string.equals("0")) {
+            timestamps.add(System.nanoTime());
+        }
+    }
+
+    public void setTimestampsToZero () {
+        timestamps = new ArrayList();
+    }
+
+   public void calculateLatency () {
+
+      for (int i = 1; i < timestamps.size(); i++) {
+          if ((timestamps.get(i) != null) && (timestamps.get(i) != null)) {
+             latency.add(timestamps.get(i) - timestamps.get(i - 1));
+          }
+      }
+   }
 
     public void setCycleController(boolean cycleController) {
         this.cycleController = cycleController;
@@ -19,16 +46,15 @@ public class TokenNodeArrayBlockingQueue extends ThroughputChecker implements To
 
     private volatile boolean cycleController = true;
 
-    private final Queue<ContentPackage> contentPackageQueue = new ArrayBlockingQueue<ContentPackage>(300000) {
+    private final Queue<ContentPackage> contentPackageQueue = new ArrayBlockingQueue<ContentPackage>(300001) {
     };
 
-    public TokenNodeArrayBlockingQueue(int index) {
-        this.index = index;
+    public TokenNodeArrayBlockingQueueTimeStampChecker(int index) {
+        super(index);
     }
 
-    public TokenNodeArrayBlockingQueue(int index, TokenNode next) {
-        this.index = index;
-        this.next = next;
+    public TokenNodeArrayBlockingQueueTimeStampChecker(int index, TokenNode next) {
+        super(index,next);
     }
 
     @Override
@@ -43,8 +69,10 @@ public class TokenNodeArrayBlockingQueue extends ThroughputChecker implements To
     @Override
     public void sendContentPackage(ContentPackage outboxContentPackage) {
   ///      System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
-        this.next.receiveContentPackage(outboxContentPackage);
 
+        putTimeStamp(outboxContentPackage.content);
+        this.next.receiveContentPackage(outboxContentPackage);
+        countIncrement();
     }
 
     @Override

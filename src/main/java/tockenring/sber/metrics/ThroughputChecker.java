@@ -15,6 +15,6 @@ public class ThroughputChecker {
     }
 
     public long checkThroughput(long time) {
-        return ((count.get() / time) * 1000); ////   p/sec
+        return (long) ((Double.valueOf(count.get()) / time) * 1000); ////   p/sec
     }
 }

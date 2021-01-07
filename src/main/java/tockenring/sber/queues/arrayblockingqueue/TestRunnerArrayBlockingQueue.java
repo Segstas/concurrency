@@ -1,27 +1,35 @@
 package tockenring.sber.queues.arrayblockingqueue;
 
-import tockenring.sber.ContentPackage;
 import tockenring.sber.metrics.TimeChecker;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.OptionalDouble;
 
 public class TestRunnerArrayBlockingQueue {
 
     public static void main(String[] args) {
 
-        deleteFiles();
+        //deleteFiles();
 
         System.out.println(
                 "Test queue START"
         );
-        for (int i = 2; i <= 2; i = i + 2) {
-            for (int j = 30000; j <= 30000; j = j + 5) {
+        for (int i = 2; i <= 512; i = i * 2) {///nodes
+            for (int j = 10000; j <= 10000; j = j + 5) {
                 runTest(i, j);
             }
         }
+        
+/*        for (int i = 256; i <= 1056; i = i + 100) {///nodes
+            for (int j = 10000; j <= 10000; j = j + 5) {
+                runTest(i, j);
+            }
+        }*/
         System.out.println(
                 "Test queue STOP"
         );
@@ -53,11 +61,14 @@ public class TestRunnerArrayBlockingQueue {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        tokenRing.setLatencyToZero();
+
+        tokenRing = new TokenRingArrayBlockingQueue(nodeCount);
+        tokenRing.fillContent(contentCount);
+        tokenRing.startThreads();
         TimeChecker.startTimeChecking();
-        tokenRing.setCountToZero(0);////0 means nothing
+
         try {
-            Thread.sleep(2000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -94,6 +105,7 @@ public class TestRunnerArrayBlockingQueue {
         File file6 = new File("testdata/MinLatency.txt");
         File file7 = new File("testdata/AvgLatency.txt");
         File file8 = new File("testdata/MaxLatency.txt");
+        File file10 = new File("testdata/AllLatency.txt");
         File file9 = new File("testdata/testName.txt");
 
 
@@ -150,30 +162,36 @@ public class TestRunnerArrayBlockingQueue {
         try (FileWriter minLatency = new FileWriter("testdata/MinLatency.txt", true);
              FileWriter avgLatency = new FileWriter("testdata/AvgLatency.txt", true);
              FileWriter maxLatency = new FileWriter("testdata/MaxLatency.txt", true);
+             FileWriter allLatency = new FileWriter("testdata/AllLatency.txt", true);
+
         ) {
 
-            List<Long> contentPackageLatencyList = new ArrayList<>();
+            List<Long> contentPackageLatencyList;
+            List<Long> contentPackageLatencyListDevided = new ArrayList<>();
             Comparator comparator = Comparator.comparingLong(Long::longValue);
-            for (ContentPackage contentPackage : tokenRing.contentPackages) {
-                contentPackage.calculateLatency();
-                OptionalDouble average = contentPackage.latency.stream().mapToLong(num -> num).average();
-                if (average.isPresent()) {
-                    System.out.println("Average for 1 latency =" + average.getAsDouble() + " * 10^-9 sec");
-                    contentPackageLatencyList.add((long) average.getAsDouble());
-                }
-            }
+            TokenNodeArrayBlockingQueueTimeStampChecker timeStampChecker = (TokenNodeArrayBlockingQueueTimeStampChecker)
+                    tokenRing.tokenNodes.get(0);
+            timeStampChecker.calculateLatency();
+            contentPackageLatencyList = timeStampChecker.latency;
             ///tokenRing.contentPackages.get(0).calculateLatency();
 
-            System.out.println("Min latency =" + contentPackageLatencyList.stream().min(comparator) + " * 10^-9 sec");
-            minLatency.append(contentPackageLatencyList.stream().min(comparator).get().toString() + '\n');
+            for (Long aLong : contentPackageLatencyList) {
+                double d = (Double.valueOf(aLong) / nodeCount);
+                contentPackageLatencyListDevided.add((long) d);
+                allLatency.append(String.valueOf( (long)d) + '\n');
+            }
 
-            OptionalDouble average = contentPackageLatencyList.stream().mapToLong(num -> num).average();
+
+            System.out.println("Min latency =" + contentPackageLatencyListDevided.stream().min(comparator).get().toString() + " * 10^-9 sec");
+            minLatency.append(contentPackageLatencyListDevided.stream().min(comparator).get().toString() + '\n');
+
+            OptionalDouble average = contentPackageLatencyListDevided.stream().mapToLong(num -> num).average();
             if (average.isPresent()) {
                 System.out.println("Average latency =" + average.getAsDouble() + " * 10^-9 sec");
-                avgLatency.append(String.valueOf(average.getAsDouble()) + '\n');
+                avgLatency.append(String.valueOf((long) average.getAsDouble()) + '\n');
             }
-            System.out.println("Max latency =" + contentPackageLatencyList.stream().max(comparator).get().toString() + " * 10^-9 sec");
-            maxLatency.append(contentPackageLatencyList.stream().max(comparator).get().toString() + '\n');
+            System.out.println("Max latency =" + contentPackageLatencyListDevided.stream().max(comparator).get().toString() + " * 10^-9 sec");
+            maxLatency.append(contentPackageLatencyListDevided.stream().max(comparator).get().toString() + '\n');
 
 
             System.out.println(
@@ -184,110 +202,4 @@ public class TestRunnerArrayBlockingQueue {
         }
     }
 
-//
-
 }
-
-//real min and max latency
-//
-/*    private static void generateLatency(int nodeCount, int contentCount, TokenRingArrayBlockingQueue tokenRing) {
-        try (FileWriter minLatency = new FileWriter("testdata/MinLatency.txt", true);
-             FileWriter avgLatency = new FileWriter("testdata/AvgLatency.txt", true);
-             FileWriter maxLatency = new FileWriter("testdata/MaxLatency.txt", true);
-        ) {
-
-            List<Long> contentPackageLatencyList = new ArrayList<>();
-            List<Long> contentPackageMinLatencyList = new ArrayList<>();
-            List<Long> contentPackageMaxLatencyList = new ArrayList<>();
-
-            Comparator comparator = Comparator.comparingLong(Long::longValue);
-            for (ContentPackage contentPackage : tokenRing.contentPackages) {
-                contentPackage.calculateLatency();
-                OptionalLong min = contentPackage.latency.stream().mapToLong(num -> num).min();
-                OptionalDouble average = contentPackage.latency.stream().mapToLong(num -> num).average();
-                OptionalLong max = contentPackage.latency.stream().mapToLong(num -> num).max();
-                if (average.isPresent()) {
-                    System.out.println("Average for 1 latency =" + average.getAsDouble() + " * 10^-9 sec");
-                    contentPackageLatencyList.add((long) average.getAsDouble());
-                }
-                if (min.isPresent()) {
-                    contentPackageMinLatencyList.add(min.getAsLong());
-                }
-                if (max.isPresent()) {
-                    contentPackageMaxLatencyList.add((long) max.getAsLong());
-                }
-            }
-            ///tokenRing.contentPackages.get(0).calculateLatency();
-
-            System.out.println("Min latency =" + contentPackageMinLatencyList.stream().min(comparator) + " * 10^-9 sec");
-            minLatency.append(contentPackageMinLatencyList.stream().min(comparator).get().toString() + '\n');
-
-            OptionalDouble average = contentPackageLatencyList.stream().mapToLong(num -> num).average();
-            if (average.isPresent()) {
-                System.out.println("Average latency =" + average.getAsDouble() + " * 10^-9 sec");
-                avgLatency.append(String.valueOf(average.getAsDouble()) + '\n');
-            }
-            System.out.println("Max latency =" + contentPackageMaxLatencyList.stream().max(comparator).get().toString() + " * 10^-9 sec");
-            maxLatency.append(contentPackageMaxLatencyList.stream().max(comparator).get().toString() + '\n');
-
-
-            System.out.println(
-                    "STOP TEST node count = " + nodeCount + ",content count = " + contentCount + "\n" + "\n"
-            );
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-    }*/
-
-
-///average max and min
-/*    private static void generateLatency(int nodeCount, int contentCount, TokenRingArrayBlockingQueue tokenRing) {
-        try (FileWriter minLatency = new FileWriter("testdata/MinLatency.txt", true);
-             FileWriter avgLatency = new FileWriter("testdata/AvgLatency.txt", true);
-             FileWriter maxLatency = new FileWriter("testdata/MaxLatency.txt", true);
-        ) {
-
-            List<Long> contentPackageLatencyList = new ArrayList<>();
-            List<Long> contentPackageMinLatencyList = new ArrayList<>();
-            List<Long> contentPackageMaxLatencyList = new ArrayList<>();
-
-            Comparator comparator = Comparator.comparingLong(Long::longValue);
-            for (ContentPackage contentPackage : tokenRing.contentPackages) {
-                contentPackage.calculateLatency();
-                OptionalLong min = contentPackage.latency.stream().mapToLong(num -> num).min();
-                OptionalDouble average = contentPackage.latency.stream().mapToLong(num -> num).average();
-                OptionalLong max = contentPackage.latency.stream().mapToLong(num -> num).max();
-                if (average.isPresent()) {
-                    System.out.println("Average for 1 latency =" + average.getAsDouble() + " * 10^-9 sec");
-                    contentPackageLatencyList.add((long) average.getAsDouble());
-                }
-                if (min.isPresent()) {
-                    contentPackageMinLatencyList.add(min.getAsLong());
-                }
-                if (max.isPresent()) {
-                    contentPackageMaxLatencyList.add((long) max.getAsLong());
-                }
-            }
-            ///tokenRing.contentPackages.get(0).calculateLatency();
-
-            System.out.println("Min latency =" + contentPackageMinLatencyList.stream().min(comparator) + " * 10^-9 sec");
-            //  minLatency.append(contentPackageMinLatencyList.stream().min(comparator).get().toString() + '\n');
-            OptionalDouble minAverage = contentPackageMinLatencyList.stream().mapToLong(num -> num).average();
-            minLatency.append(String.valueOf((long)minAverage.getAsDouble()) + '\n');
-
-            OptionalDouble average = contentPackageLatencyList.stream().mapToLong(num -> num).average();
-            if (average.isPresent()) {
-                System.out.println("Average latency =" + average.getAsDouble() + " * 10^-9 sec");
-                avgLatency.append(String.valueOf((long)average.getAsDouble()) + '\n');
-            }
-            OptionalDouble maxAverage = contentPackageMaxLatencyList.stream().mapToLong(num -> num).average();
-            maxLatency.append(String.valueOf((long)maxAverage.getAsDouble()) + '\n');
-
-
-            System.out.println(
-                    "STOP TEST node count = " + nodeCount + ",content count = " + contentCount + "\n" + "\n"
-            );
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-    }*/

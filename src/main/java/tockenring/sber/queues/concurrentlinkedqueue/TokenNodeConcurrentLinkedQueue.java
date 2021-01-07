@@ -19,7 +19,8 @@ public class TokenNodeConcurrentLinkedQueue extends ThroughputChecker implements
 
     private volatile boolean cycleController = true;
 
-    private final Queue<ContentPackage> contentPackageQueue = new ConcurrentLinkedQueue();
+    private final Queue<ContentPackage> contentPackageQueue = new ConcurrentLinkedQueue<ContentPackage>() {
+    };
 
     public TokenNodeConcurrentLinkedQueue(int index) {
         this.index = index;
@@ -41,17 +42,17 @@ public class TokenNodeConcurrentLinkedQueue extends ThroughputChecker implements
 
     @Override
     public void sendContentPackage(ContentPackage outboxContentPackage) {
-  ///      System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
-        outboxContentPackage.putTimeStamp();
+        ///      System.out.println("Content package " + outboxContentPackage.toString() + " has been send from TokenNode #" + this.index);
         this.next.receiveContentPackage(outboxContentPackage);
-        countIncrement();
+
     }
 
     @Override
     public void receiveContentPackage(ContentPackage inboxContentPackage) {
-    ///    System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
+        ///    System.out.println("Content package " + inboxContentPackage.toString() + " has been received in #" + this.index);
+
         this.contentPackageQueue.add(inboxContentPackage);
-     ///   System.out.println("Content package " + inboxContentPackage.toString() + " has been set in #" + this.index);
+        ///   System.out.println("Content package " + inboxContentPackage.toString() + " has been set in #" + this.index);
     }
 
     public ContentPackage getContentPackage() {
